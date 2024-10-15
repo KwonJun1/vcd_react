@@ -1,0 +1,78 @@
+<!-- public/results.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Results</title>
+    <script src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/recharts/umd/Recharts.min.js"></script>
+    <script src="https://unpkg.com/@chakra-ui/react@1.8.8/dist/chakra-ui-react.production.min.js"></script>
+    <script src="https://unpkg.com/@emotion/react@11.1.4/dist/emotion-react.umd.min.js"></script>
+    <script src="https://unpkg.com/@emotion/styled@11.0.0/dist/emotion-styled.umd.min.js"></script>
+    <script src="https://unpkg.com/framer-motion@4.1.17/dist/framer-motion.umd.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+    <script>
+        window.addEventListener('message', function(event) {
+            const { radarData, temperatureData } = event.data;
+            
+            // Your ResultsPage component code here
+            function ResultsPage({ radarData, temperatureData }) {
+                const { Box, VStack, Heading, Tabs, TabList, TabPanels, Tab, TabPanel } = ChakraUI;
+                const { RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } = Recharts;
+
+                return React.createElement(ChakraUI.ChakraProvider, null,
+                    React.createElement(Box, { maxWidth: "800px", margin: "auto", padding: 5 },
+                        React.createElement(VStack, { spacing: 6, align: "stretch" },
+                            React.createElement(Heading, { as: "h1", size: "xl", textAlign: "center", mb: 4 }, "Analysis Results"),
+                            React.createElement(Tabs, { isFitted: true, variant: "enclosed" },
+                                React.createElement(TabList, { mb: "1em" },
+                                    React.createElement(Tab, null, "Performance Overview"),
+                                    React.createElement(Tab, null, "Temperature Properties")
+                                ),
+                                React.createElement(TabPanels, null,
+                                    React.createElement(TabPanel, null,
+                                        React.createElement(RadarChart, { width: 600, height: 400, outerRadius: "80%", data: radarData },
+                                            React.createElement(PolarGrid),
+                                            React.createElement(PolarAngleAxis, { dataKey: "subject", fontSize: '18px', fontWeight: 'bold' }),
+                                            React.createElement(PolarRadiusAxis),
+                                            React.createElement(Radar, { name: "Performance", dataKey: "A", stroke: "#8884d8", fill: "#8884d8", fillOpacity: 0.6 })
+                                        )
+                                    ),
+                                    React.createElement(TabPanel, null,
+                                        React.createElement(LineChart, { width: 600, height: 400, data: temperatureData[0] },
+                                            React.createElement(CartesianGrid, { strokeDasharray: "3 3" }),
+                                            React.createElement(XAxis, { type: "number", dataKey: "temperature", domain: ['dataMin', 'dataMax'], label: { value: 'Temperature (°C)', position: 'bottom' } }),
+                                            React.createElement(YAxis, { label: { value: 'tan δ', angle: -90, position: 'insideLeft' } }),
+                                            React.createElement(Tooltip),
+                                            temperatureData.map((record, index) => 
+                                                React.createElement(Line, { 
+                                                    key: index, 
+                                                    type: "monotone", 
+                                                    data: record, 
+                                                    dataKey: "value",
+                                                    stroke: index === 0 ? "#8884d8" : "#cccccc",
+                                                    strokeWidth: index === 0 ? 2 : 1,
+                                                    dot: false
+                                                })
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                );
+            }
+
+            ReactDOM.render(
+                React.createElement(ResultsPage, { radarData, temperatureData }),
+                document.getElementById('root')
+            );
+        });
+    </script>
+</body>
+</html>
